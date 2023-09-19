@@ -3,7 +3,7 @@
 }
 
 body {
-  background: #333;
+  background: #68deee7c;
   padding: 0;
   margin: 0;
   overflow: hidden;
@@ -11,8 +11,8 @@ body {
 
 .game-container {
   position: relative; 
-  width: 352px;
-  height: 198px;
+  width: 433px;
+  height: 299px;
   margin: 0 auto;
   outline: 1px solid #fff;
 
