@@ -124,7 +124,7 @@ window.OverworldMaps = {
               { type: "textMessage", text: "hahaha" },
               { type: "textMessage", text: "ahahah" },
 
-              { who: "hero", type: "stand", direction: "right" },
+              { who: "hero", type: "stand", direction: "left" },
             ]
           }
         ]
