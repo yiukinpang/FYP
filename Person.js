@@ -4,6 +4,8 @@ class Person extends GameObject {
     this.movingProgressRemaining = 0;
     this.isStanding = false;
 
+    this.intentPosition = null; //[x,y]
+
     this.isPlayerControlled = config.isPlayerControlled || false;
 
     this.directionUpdate = {
@@ -12,18 +14,14 @@ class Person extends GameObject {
       "left": ["x", -1],
       "right": ["x", 1],
     }
+    this.standBehaviorTimeout;
   }
 
   update(state) {
     if (this.movingProgressRemaining > 0) {
       this.updatePosition();
     } else {
-
-      //More cases for starting to walk will come here
-      //
-      //
-
-      //Case: We're keyboard ready and have an arrow pressed
+      //We're keyboard ready and have an arrow pressed
       if (!state.map.isCutscenePlaying && this.isPlayerControlled && state.arrow) {
         this.startBehavior(state, {
           type: "walk",
@@ -35,6 +33,11 @@ class Person extends GameObject {
   }
 
   startBehavior(state, behavior) {
+
+    if (!this.isMounted) {
+      return
+    }
+
     //Set character direction to whatever behavior has
     this.direction = behavior.direction;
     
@@ -42,22 +45,30 @@ class Person extends GameObject {
       //Stop here if space is not free
       if (state.map.isSpaceTaken(this.x, this.y, this.direction)) {
 
-        behavior.retry && setTimeout(() => {
-          this.startBehavior(state, behavior)
-        }, 10);
-
-        return;
+        
+          behavior.retry && setTimeout(() => {
+            this.startBehavior(state, behavior)
+          }, 10);
+          return;
+        
       }
 
       //Ready to walk!
-      state.map.moveWall(this.x, this.y, this.direction);
       this.movingProgressRemaining = 16;
+
+      //Add next position
+      const intentPosition = utils.nextPosition(this.x,this.y, this.direction)
+      this.intentPosition = [
+        intentPosition.x,
+        intentPosition.y,
+      ]
+
       this.updateSprite(state);
     }
 
     if (behavior.type === "stand") {
       this.isStanding = true;
-      setTimeout(() => {
+      this.standBehaviorTimeout = setTimeout(() => {
         utils.emitEvent("PersonStandComplete", {
           whoId: this.id
         })
@@ -73,6 +84,7 @@ class Person extends GameObject {
       this.movingProgressRemaining -= 1;
 
       if (this.movingProgressRemaining === 0) {
+        this.intentPosition = null;
         //We finished the walk!
         utils.emitEvent("PersonWalkingComplete", {
           whoId: this.id
