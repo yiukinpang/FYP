@@ -13,7 +13,7 @@ window.Pizzas = {
     type: PizzaTypes.spicy,
     src: "/images/characters/pizzas/s001.png",
     icon: "/images/icons/spicy.png",
-    actions: [ "saucyStatus","superWhomp" ],
+    actions: [ "saucyStatus","superWhomp","damage1","clumsyStatus" ],
   },
   "s002": {
     name: "Bacon Brigade",

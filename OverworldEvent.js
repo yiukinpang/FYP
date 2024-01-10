@@ -48,17 +48,39 @@ class OverworldEvent {
   }
 
   textMessage(resolve) {
-
     if (this.event.faceHero) {
       const obj = this.map.gameObjects[this.event.faceHero];
       obj.direction = utils.oppositeDirection(this.map.gameObjects["hero"].direction);
     }
-
+  
+    const self = this;
     const message = new TextMessage({
       text: this.event.text,
-      onComplete: () => resolve()
-    })
-    message.init( document.querySelector(".game-container") )
+      onComplete: function() {
+        // 在文本消息完成後觸發 AJAX 請求
+        self.sendAjaxRequest(resolve);
+      }
+    });
+    message.init(document.querySelector(".game-container"));
+  }
+  
+  sendAjaxRequest(resolve) {
+    const url = "https://us-central1-fyp-a08.cloudfunctions.net/get_question";
+  
+    // 使用 AJAX 發送請求
+    $.ajax({
+      url: url,
+      method: "GET",
+      success: function(response) {
+        // 在成功回調中處理回應
+        console.log(response);
+        resolve();
+      },
+      error: function(xhr, status, error) {
+        console.error(error);
+        resolve();
+      }
+    });
   }
 
   changeMap(resolve) {
