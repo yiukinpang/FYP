@@ -27,6 +27,15 @@ window.Actions = {
       { type: "textMessage", text: "{TARGET} is slipping all around!"},
     ]
   },
+  superWhomp: {
+    name: "Super whomp!",
+    description: "Powerful punch of dough",
+    success: [
+      { type: "textMessage", text: "{CASTER} uses {ACTION}!" },
+      { type: "animation", animation: "spin" },
+      { type: "stateChange", damage: 20 }
+    ]
+  },
   //Items
   item_recoverStatus: {
     name: "Heating Lamp",
