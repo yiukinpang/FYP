@@ -3,10 +3,9 @@
 
 <head>
   <title>Pizza Legends</title>
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Ribeye&display=swap" rel="stylesheet">
+  <base href="https://storage.googleapis.com/fyp_a08/26-pizza-legends-game-loop-speed/">
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
   <!-- Overworld styles -->
   <link href="styles/global.css" type="text/css" rel="stylesheet">
   <link href="styles/TextMessage.css" type="text/css" rel="stylesheet">
@@ -20,6 +19,7 @@
   <link href="styles/SubmissionMenu.css" type="text/css" rel="stylesheet">
   <link href="styles/Team.css" type="text/css" rel="stylesheet">
   <link href="styles/Menus.css" type="text/css" rel="stylesheet">
+  <link href="styles/chatbot.css" type="text/css" rel="stylesheet">
   <style>
     .chat-container {
       position: fixed;
@@ -58,46 +58,9 @@
     .chat-message {
       margin-bottom: 10px;
     }
-
-    .chat-container-left-bottom {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      width: 300px;
-      height: 400px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-      overflow: hidden;
-    }
-
-    .chat-container-left-bottom .chat-header {
-      background-color: #333;
-      color: #fff;
-      padding: 10px;
-    }
-
-    .chat-container-left-bottom .chat-body {
-      padding: 10px;
-      height: 330px;
-      overflow-y: scroll;
-    }
-
-    .chat-container-left-bottom .chat-input {
-      display: flex;
-      align-items: center;
-      padding: 10px;
-    }
-
-    .chat-container-left-bottom .chat-input input {
-      flex-grow: 1;
-      margin-right: 10px;
-    }
-
-    .chat-container-left-bottom .chat-message {
-      margin-bottom: 10px;
-    }
   </style>
 </head>
+<body>
 <div class="game-container">
   <canvas class="game-canvas" width="352" height="198"></canvas>
 </div>
@@ -116,19 +79,6 @@
   </div>
 </div>
 
-<div class="chat-container chat-container-left-bottom">
-  <div class="chat-header">
-    Chatbot
-  </div>
-  <div class="chat-body" id="chat-body-left-bottom">
-    <!-- 左下角聊天消息 -->
-  </div>
-  <div class="chat-input">
-    <input type="text" id="chat-input-left-bottom" placeholder="msg here.">
-    <button id="send-button-left-bottom">send</button>
-  </div>
-</div>
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   const chatBody = document.getElementById("chat-body");
@@ -144,42 +94,31 @@
 
   sendButton.addEventListener("click", () => {
     const message = chatInput.value;
-    addMessageToChat(message, "User");
-    chatInput.value = "";
-  });
-
-  const chatBodyLeftBottom = document.getElementById("chat-body-left-bottom");
-  const chatInputLeftBottom = document.getElementById("chat-input-left-bottom");
-  const sendButtonLeftBottom = document.getElementById("send-button-left-bottom");
-
-  function addMessageToChatLeftBottom(message, sender) {
-    const messageElement = document.createElement("div");
-    messageElement.classList.add("chat-message");
-    messageElement.innerText = `${sender}: ${message}`;
-    chatBodyLeftBottom.appendChild(messageElement);
-  }
-
-  sendButtonLeftBottom.addEventListener("click", () => {
-  const message = chatInputLeftBottom.value;
-  addMessageToChatLeftBottom(message, "User1");
-
-  $.ajax({
-    url: "https://us-central1-fyp-a08.cloudfunctions.net/get_question",
-    method: "GET",
-    success: function(response) {
-      const responseData = JSON.parse(response);
-      const question = responseData.question;
-      addMessageToChatLeftBottom(question, "chatbot");
-    },
-    error: function(xhr, status, error) {
-      console.error(error);
+    const data = {
+      message: message
     }
-  });
+    addMessageToChat(message, "user");
+    chatInput.value = "";
 
-  chatInputLeftBottom.value = "";
-});
+    // 使用AJAX發送請求
+    fetch("https://us-central1-fyp-a08.cloudfunctions.net/chatbot2", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    })
+      .then(response => response.json())
+      .then(responseData => {
+        const question = responseData.answer;
+        addMessageToChat(question, "chatbot");
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  });
 </script>
-</script>
+
 
 <!-- Content -->
 <script>

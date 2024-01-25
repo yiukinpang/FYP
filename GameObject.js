@@ -7,18 +7,19 @@ class GameObject {
     this.direction = config.direction || "down";
     this.sprite = new Sprite({
       gameObject: this,
-      src: config.src || "/images/characters/people/hero.png",
+      src: config.src || "./images/characters/people/hero.png",
     });
 
     //These happen once on map startup.
+    //Characters will pause after a cutscene is triggered, but will resume activity when reentering the map
     this.behaviorLoop = config.behaviorLoop || [];
     this.behaviorLoopIndex = 0;
     this.talking = config.talking || [];
-    this.retryTimeout = null;
   }
 
   mount(map) {
     this.isMounted = true;
+    map.addWall(this.x, this.y);
 
     //If we have a behavior, kick off after a short delay
     setTimeout(() => {
@@ -31,19 +32,9 @@ class GameObject {
 
   async doBehaviorEvent(map) { 
 
-    //I don't have config to do anything
-    if (this.behaviorLoop.length === 0 ) {
-      return;
-    }
-
-    //Retry later if a cutscene is playing
-    if (map.isCutscenePlaying) {
-      if (this.retryTimeout) {
-        clearTimeout(this.retryTimeout);
-      }
-      this.retryTimeout = setTimeout(() => {
-        this.doBehaviorEvent(map)
-      }, 1000)
+    //Don't do anything if there is a more important cutscene or I don't have config to do anything
+    //anyway.
+    if (map.isCutscenePlaying || this.behaviorLoop.length === 0 || this.isStanding) {
       return;
     }
 

@@ -6,7 +6,6 @@ class OverworldEvent {
 
   stand(resolve) {
     const who = this.map.gameObjects[ this.event.who ];
-
     who.startBehavior({
       map: this.map
     }, {
@@ -27,7 +26,6 @@ class OverworldEvent {
 
   walk(resolve) {
     const who = this.map.gameObjects[ this.event.who ];
-
     who.startBehavior({
       map: this.map
     }, {
@@ -48,48 +46,20 @@ class OverworldEvent {
   }
 
   textMessage(resolve) {
+
     if (this.event.faceHero) {
       const obj = this.map.gameObjects[this.event.faceHero];
       obj.direction = utils.oppositeDirection(this.map.gameObjects["hero"].direction);
     }
-  
-    const self = this;
+
     const message = new TextMessage({
       text: this.event.text,
-      onComplete: function() {
-        // 在文本消息完成後觸發 AJAX 請求
-        self.sendAjaxRequest(resolve);
-      }
-    });
-    message.init(document.querySelector(".game-container"));
-  }
-  
-  sendAjaxRequest(resolve) {
-    const url = "https://us-central1-fyp-a08.cloudfunctions.net/get_question";
-  
-    // 使用 AJAX 發送請求
-    $.ajax({
-      url: url,
-      method: "GET",
-      success: function(response) {
-        // 在成功回調中處理回應
-        console.log(response);
-        resolve();
-      },
-      error: function(xhr, status, error) {
-        console.error(error);
-        resolve();
-      }
-    });
+      onComplete: () => resolve()
+    })
+    message.init( document.querySelector(".game-container") )
   }
 
   changeMap(resolve) {
-
-    //Stop all Person things
-    Object.values(this.map.gameObjects).forEach(obj => {
-      obj.isMounted = false;
-    })
-
     const sceneTransition = new SceneTransition();
     sceneTransition.init(document.querySelector(".game-container"), () => {
       this.map.overworld.startMap( window.OverworldMaps[this.event.map], {

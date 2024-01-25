@@ -4,13 +4,9 @@ class DirectionInput {
 
     this.map = {
       "ArrowUp": "up",
-      
       "ArrowDown": "down",
-      
       "ArrowLeft": "left",
-      
       "ArrowRight": "right",
-      
     }
   }
 
