@@ -131,10 +131,16 @@ class TitleScreen {
     if (!this.teacherLoginForm) {
       this.teacherLoginForm = document.createElement("div");
       this.teacherLoginForm.innerHTML = `
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button id="teacher-login-button">Teacher Login</button>
-      `;
+      <div class="DialogBox-header">
+        <h2>Teacher Login</h2>
+      </div>
+      <div class="DialogBox-content">
+        <!-- 空白內容 -->
+      </div>
+      <div class="DialogBox-footer">
+        <!-- 空白內容 -->
+      </div>
+    `;
   
       const teacherLoginButton = this.teacherLoginForm.querySelector("#teacher-login-button");
       teacherLoginButton.addEventListener("click", () => {
