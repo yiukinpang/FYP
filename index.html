@@ -1,173 +1,73 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <title>Pizza Legends</title>
 
-<head>
-  <title>Pizza Legends</title>
-  <base href="https://storage.googleapis.com/fyp_a08/26-pizza-legends-game-loop-speed/">
-  <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-  <!-- Overworld styles -->
-  <link href="styles/global.css" type="text/css" rel="stylesheet">
-  <link href="styles/TextMessage.css" type="text/css" rel="stylesheet">
-  <link href="styles/SceneTransition.css" type="text/css" rel="stylesheet">
-  <link href="styles/KeyboardMenu.css" type="text/css" rel="stylesheet">
-  <link href="styles/Hud.css" type="text/css" rel="stylesheet">
-  <link href="styles/TitleScreen.css" type="text/css" rel="stylesheet">
-  <!-- Battle css -->
-  <link href="styles/Battle.css" type="text/css" rel="stylesheet">
-  <link href="styles/Combatant.css" type="text/css" rel="stylesheet">
-  <link href="styles/SubmissionMenu.css" type="text/css" rel="stylesheet">
-  <link href="styles/Team.css" type="text/css" rel="stylesheet">
-  <link href="styles/Menus.css" type="text/css" rel="stylesheet">
-  <link href="styles/chatbot.css" type="text/css" rel="stylesheet">
-  <style>
-    .chat-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 300px;
-      height: 400px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-      overflow: hidden;
-    }
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ribeye&display=swap" rel="stylesheet">
+    <!-- Overworld styles -->
+    <link href="/styles/global.css" type="text/css" rel="stylesheet">
+    <link href="/styles/TextMessage.css" type="text/css" rel="stylesheet">
+    <link href="/styles/SceneTransition.css" type="text/css" rel="stylesheet">
+    <link href="/styles/KeyboardMenu.css" type="text/css" rel="stylesheet">
+    <link href="/styles/Hud.css" type="text/css" rel="stylesheet">
+    <link href="/styles/TitleScreen.css" type="text/css" rel="stylesheet">
+    <!-- Battle css -->
+    <link href="/styles/Battle.css" type="text/css" rel="stylesheet">
+    <link href="/styles/Combatant.css" type="text/css" rel="stylesheet">
+    <link href="/styles/SubmissionMenu.css" type="text/css" rel="stylesheet">
+    <link href="/styles/Team.css" type="text/css" rel="stylesheet">
+    <link href="/styles/Menus.css" type="text/css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="game-container">
+      <canvas class="game-canvas" width="352" height="198"></canvas>
+    </div>
+    <p class="how-to-play">Use Arrow Keys to move. Enter to prompt/talk.</p>
 
-    .chat-header {
-      background-color: #333;
-      color: #fff;
-      padding: 10px;
-    }
+    <!-- Content -->
+    <script src="/Content/pizzas.js"></script>
+    <script src="/Content/actions.js"></script>
+    <script src="/Content/enemies.js"></script>
 
-    .chat-body {
-      padding: 10px;
-      height: 330px;
-      overflow-y: scroll;
-    }
+    <!-- State -->
+    <script src="/State/PlayerState.js"></script>
 
-    .chat-input {
-      display: flex;
-      align-items: center;
-      padding: 10px;
-    }
+    <!-- Scripts -->
+    <script src="/utils.js"></script>
+    <script src="/DirectionInput.js"></script>
+    <script src="/Overworld.js"></script>
+    <script src="/GameObject.js"></script>
+    <script src="/Person.js"></script>
+    <script src="/PizzaStone.js"></script>
+    <script src="/Sprite.js"></script>
+    <script src="/OverworldMap.js"></script>
+    <script src="/OverworldEvent.js"></script>
+    <script src="/TextMessage.js"></script>
+    <script src="/KeyPressListener.js"></script>
+    <script src="/RevealingText.js"></script>
+    <script src="/SceneTransition.js"></script>
+    <script src="/KeyboardMenu.js"></script>
+    <script src="/Hud.js"></script>
+    <script src="/PauseMenu.js"></script>
+    <script src="/CraftingMenu.js"></script>
+    <script src="/Progress.js"></script>
+    <script src="/TitleScreen.js"></script>
 
-    .chat-input input {
-      flex-grow: 1;
-      margin-right: 10px;
-    }
+    <!-- Battle -->
+    <script src="/Battle/Battle.js"></script>
+    <script src="/Battle/Combatant.js"></script>
+    <script src="/Battle/Team.js"></script>
+    <script src="/Battle/SubmissionMenu.js"></script>
+    <script src="/Battle/ReplacementMenu.js"></script>
+    <script src="/Battle/BattleEvent.js"></script>
+    <script src="/Battle/TurnCycle.js"></script>
+    <script src="/Battle/BattleAnimations.js"></script>
 
-    .chat-message {
-      margin-bottom: 10px;
-    }
-  </style>
-</head>
-<body>
-<div class="game-container">
-  <canvas class="game-canvas" width="352" height="198"></canvas>
-</div>
-<p class="how-to-play">Use Arrow Keys to move. Enter to prompt/talk.</p>
+    <script src="/init.js"></script>
 
-<div class="chat-container">
-  <div class="chat-header">
-    Chatbot
-  </div>
-  <div class="chat-body" id="chat-body">
-    <!-- 聊天消息 -->
-  </div>
-  <div class="chat-input">
-    <input type="text" id="chat-input" placeholder="msg here.">
-    <button id="send-button">send</button>
-  </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-  const chatBody = document.getElementById("chat-body");
-  const chatInput = document.getElementById("chat-input");
-  const sendButton = document.getElementById("send-button");
-
-  function addMessageToChat(message, sender) {
-    const messageElement = document.createElement("div");
-    messageElement.classList.add("chat-message");
-    messageElement.innerText = `${sender}: ${message}`;
-    chatBody.appendChild(messageElement);
-  }
-
-  sendButton.addEventListener("click", () => {
-    const message = chatInput.value;
-    const data = {
-      message: message
-    }
-    addMessageToChat(message, "user");
-    chatInput.value = "";
-
-    // 使用AJAX發送請求
-    fetch("https://us-central1-fyp-a08.cloudfunctions.net/chatbot2", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    })
-      .then(response => response.json())
-      .then(responseData => {
-        const question = responseData.answer;
-        addMessageToChat(question, "chatbot");
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  });
-</script>
-
-
-<!-- Content -->
-<script>
-  window.onload = function () {
-    const container = document.querySelector(".game-container");
-    const titleScreen = new TitleScreen();
-    titleScreen.init(container);
-  };
-</script>
-<script src="Content/pizzas.js"></script>
-<script src="Content/actions.js"></script>
-<script src="Content/enemies.js"></script>
-
-<!-- State -->
-<script src="State/PlayerState.js"></script>
-
-<!-- Scripts -->
-<script src="utils.js"></script>
-<script src="DirectionInput.js"></script>
-<script src="Overworld.js"></script>
-<script src="GameObject.js"></script>
-<script src="Person.js"></script>
-<script src="PizzaStone.js"></script>
-<script src="Sprite.js"></script>
-<script src="OverworldMap.js"></script>
-<script src="OverworldEvent.js"></script>
-<script src="TextMessage.js"></script>
-<script src="KeyPressListener.js"></script>
-<script src="RevealingText.js"></script>
-<script src="SceneTransition.js"></script>
-<script src="KeyboardMenu.js"></script>
-<script src="Hud.js"></script>
-<script src="PauseMenu.js"></script>
-<script src="CraftingMenu.js"></script>
-<script src="Progress.js"></script>
-<script src="TitleScreen.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Battle -->
-<script src="Battle/Battle.js"></script>
-<script src="Battle/Combatant.js"></script>
-<script src="Battle/Team.js"></script>
-<script src="Battle/SubmissionMenu.js"></script>
-<script src="Battle/ReplacementMenu.js"></script>
-<script src="Battle/BattleEvent.js"></script>
-<script src="Battle/TurnCycle.js"></script>
-<script src="Battle/BattleAnimations.js"></script>
-
-<script src="init.js"></script>
-
-</body>
-
+  </body>
 </html>
