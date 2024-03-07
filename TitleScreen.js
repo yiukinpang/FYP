@@ -24,6 +24,10 @@ class TitleScreen {
         this.showTeacherLoginScreen(resolve);
       }
     };
+  
+
+    
+    
 
     const createUserOption = {
       label: "Create User",
@@ -119,61 +123,63 @@ class TitleScreen {
 
   showTeacherLoginScreen(resolve) {
     if (this.createUserForm) {
-      this.element.removeChild(this.createUserForm);
-      this.createUserForm = null;
+        this.element.removeChild(this.createUserForm);
+        this.createUserForm = null;
     }
 
     if (this.loginForm) {
-      this.element.removeChild(this.loginForm);
-      this.loginForm = null;
+        this.element.removeChild(this.loginForm);
+        this.loginForm = null;
     }
-  
+
     if (!this.teacherLoginForm) {
-      this.teacherLoginForm = document.createElement("div");
-      this.teacherLoginForm.innerHTML = `
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button id="teacher-login-button">Teacher Login</button>
-      `;
-  
-      const teacherLoginButton = this.teacherLoginForm.querySelector("#teacher-login-button");
-      teacherLoginButton.addEventListener("click", () => {
-        const username = this.teacherLoginForm.querySelector("#username").value;
-        const password = this.teacherLoginForm.querySelector("#password").value;
-  
-        this.teacherLogin(username, password, resolve);
-      });
+        this.teacherLoginForm = document.createElement("div");
+        this.teacherLoginForm.innerHTML = `
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button id="teacher-login-button">Teacher Login</button>
+        `;
+
+        const teacherLoginButton = this.teacherLoginForm.querySelector("#teacher-login-button");
+        teacherLoginButton.addEventListener("click", () => {
+            const username = this.teacherLoginForm.querySelector("#username").value;
+            const password = this.teacherLoginForm.querySelector("#password").value;
+
+            this.teacherLogin(username, password, resolve);
+        });
     }
-  
+
     this.element.appendChild(this.teacherLoginForm);
-  }
-  teacherLogin = (username, password, resolve) => {
+}
+
+teacherLogin = (username, password, resolve) => {
     const data = {
-      username: username,
-      password: password
+        username: username,
+        password: password
     };
-  
+
     fetch("https://us-central1-fyp-a08.cloudfunctions.net/teacher_login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
     })
-      .then(response => {
+    .then(response => {
         if (response.ok) {
-          this.element.removeChild(this.loginForm);
-          this.close();
-          resolve();
-          console.log("Teacher login success!");
+            this.element.removeChild(this.loginForm);
+            this.close();
+            resolve();
+            console.log("Teacher login success!");
         } else {
-          console.log("Teacher login failed.");
+            console.log("Teacher login failed.");
+            alert("Teacher login failed."); // 添加警示框显示登录失败信息
         }
-      })
-      .catch(error => {
+    })
+    .catch(error => {
         console.log("Error:", error);
-      });
-  };
+    });
+};
 
   showCreateUserScreen(resolve) {
     if (this.loginForm) {
@@ -184,6 +190,11 @@ class TitleScreen {
     if (this.teacherLoginForm) {
       this.element.removeChild(this.teacherLoginForm);
       this.teacherLoginForm = null;
+    }
+    if (this.teacherLoginForm) {
+      this.element.removeChild(this.teacherLoginForm);
+      this.teacherLoginForm = null;
+      window.location.href = "";
     }
 
     if (!this.createUserForm) {
