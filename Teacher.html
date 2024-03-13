@@ -30,33 +30,63 @@
             padding: 5px;
             margin-bottom: 10px;
         }
-        input[type="submit"] {
+        input[type="submit"],
+        input[type="button"] {
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
             padding: 10px 20px;
         }
-        input[type="submit"]:hover {
+        input[type="submit"]:hover,
+        input[type="button"]:hover {
             background-color: #45a049;
         }
     </style>
+    <script>
+        function toggleFormElements() {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            var messageLabel = document.getElementById("messageLabel");
+            var message = document.getElementById("message");
+            var submit = document.getElementById("submit");
+            var loginButton = document.getElementById("loginButton");
+
+            if (username === "123" && password === "123") {
+                messageLabel.style.display = "block";
+                message.style.display = "block";
+                submit.style.display = "block";
+                loginButton.style.display = "none";
+                document.getElementById("password").value = "";
+            } else {
+                messageLabel.style.display = "none";
+                message.style.display = "none";
+                submit.style.display = "none";
+            }
+        }
+        
+        function handleSubmit() {
+            alert("Form submitted successfully!");
+        }
+    </script>
 </head>
 <body>
-    <form action="/submit" method="post">
+    <form action="/submit" method="post" onsubmit="handleSubmit()">
         <div class="form-header">
             <h1>Teacher Question</h1>
         </div>
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        
+        <input type="button" id="loginButton" value="Login" onclick="toggleFormElements()">
+        
+        <label for="message" id="messageLabel" style="display: none;">Message:</label>
+        <textarea id="message" name="message" rows="5" cols="30" style="display: none;"></textarea>
 
-        <label for="message">Message:</label>
-        <textarea id="message" name="message" rows="5" cols="30" required></textarea>
-
-        <input type="submit" value="Submit">
+        <input type="submit" id="submit" value="Submit" style="display: none;">
     </form>
 </body>
 </html>

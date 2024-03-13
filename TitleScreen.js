@@ -2,11 +2,10 @@ class TitleScreen {
   constructor({ progress }) {
     this.progress = progress;
     this.loginForm = null;
-    this.teacherLoginForm=null;
     this.createUserForm = null;
-
   }
 
+  
   getOptions(resolve) {
     const safeFile = this.progress.getSaveFile();
     const loginOption = {
@@ -14,14 +13,6 @@ class TitleScreen {
       description: "Login to continue",
       handler: () => {
         this.showLoginScreen(resolve);
-      }
-    };
-
-    const teacherLoginOption = {
-      label: "Teacher Login",
-      description: "Login as a teacher",
-      handler: () => {
-        this.showTeacherLoginScreen(resolve);
       }
     };
 
@@ -53,7 +44,6 @@ class TitleScreen {
         }
         : null,
       loginOption,
-      teacherLoginOption,
       createUserOption
     ].filter(v => v);
   }
@@ -62,11 +52,6 @@ class TitleScreen {
     if (this.createUserForm) {
       this.element.removeChild(this.createUserForm);
       this.createUserForm = null;
-    }
-
-    if (this.teacherLoginForm) {
-      this.element.removeChild(this.teacherLoginForm);
-      this.teacherLoginForm = null;
     }
 
     if (!this.loginForm) {
@@ -109,71 +94,8 @@ class TitleScreen {
           resolve();
           console.log("Login success!");
         } else {
+          alert("login failed.");  
           console.log("Login failed.");
-        }
-      })
-      .catch(error => {
-        console.log("Error:", error);
-      });
-  };
-
-  showTeacherLoginScreen(resolve) {
-    if (this.createUserForm) {
-      this.element.removeChild(this.createUserForm);
-      this.createUserForm = null;
-    }
-
-    if (this.loginForm) {
-      this.element.removeChild(this.loginForm);
-      this.loginForm = null;
-    }
-  
-    if (!this.teacherLoginForm) {
-      this.teacherLoginForm = document.createElement("div");
-      this.teacherLoginForm.innerHTML = `
-      <div class="DialogBox-header">
-        <h2>Teacher Login</h2>
-      </div>
-      <div class="DialogBox-content">
-        <!-- 空白內容 -->
-      </div>
-      <div class="DialogBox-footer">
-        <!-- 空白內容 -->
-      </div>
-    `;
-  
-      const teacherLoginButton = this.teacherLoginForm.querySelector("#teacher-login-button");
-      teacherLoginButton.addEventListener("click", () => {
-        const username = this.teacherLoginForm.querySelector("#username").value;
-        const password = this.teacherLoginForm.querySelector("#password").value;
-  
-        this.teacherLogin(username, password, resolve);
-      });
-    }
-  
-    this.element.appendChild(this.teacherLoginForm);
-  }
-  teacherLogin = (username, password, resolve) => {
-    const data = {
-      username: username,
-      password: password
-    };
-  
-    fetch("https://us-central1-fyp-a08.cloudfunctions.net/teacher_login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    })
-      .then(response => {
-        if (response.ok) {
-          this.element.removeChild(this.loginForm);
-          this.close();
-          resolve();
-          console.log("Teacher login success!");
-        } else {
-          console.log("Teacher login failed.");
         }
       })
       .catch(error => {
@@ -185,11 +107,6 @@ class TitleScreen {
     if (this.loginForm) {
       this.element.removeChild(this.loginForm);
       this.loginForm = null;
-    }
-
-    if (this.teacherLoginForm) {
-      this.element.removeChild(this.teacherLoginForm);
-      this.teacherLoginForm = null;
     }
 
     if (!this.createUserForm) {
@@ -237,8 +154,10 @@ class TitleScreen {
           this.element.removeChild(this.createUserForm);
           this.close();
           resolve();
+          alert("User created successfully!")
           console.log("User created successfully!");
         } else {
+          alert("Failed to create user.")
           console.log("Failed to create user.");
         }
       })
