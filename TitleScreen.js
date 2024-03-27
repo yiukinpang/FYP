@@ -37,6 +37,14 @@ class TitleScreen {
       }
     };
 
+    const rememberMeOption = {
+  label: "Remember Me",
+  description: "Stay logged in even after closing the browser",
+  handler: () => {
+    // 在这里添加保存登录状态的逻辑
+    // ...
+  }
+};
     return [
       {
         label: "New Game",
@@ -225,7 +233,7 @@ teacherLogin = (username, password, resolve) => {
     const data = {
       username: username,
       password: password,
-      email: email
+      email: email,
     };
 
 
@@ -275,3 +283,18 @@ teacherLogin = (username, password, resolve) => {
     });
   }
 }
+
+setCookie("username", "aaaa", 365); 
+setCookie("language", "en", 365); 
+
+
+javascript
+Copy
+const username = getCookie("username"); 
+const language = getCookie("language"); 
+
+
+javascript
+Copy
+deleteCookie("username"); 
+deleteCookie("language"); 

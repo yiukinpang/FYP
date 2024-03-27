@@ -4,6 +4,7 @@
 <head>
   <title>Pizza Legends</title>
   <title>Teacher Login Button</title>
+  <title>Registration Page</title>
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="images/favicon.ico">
   <!-- Overworld styles -->
@@ -126,7 +127,11 @@
       });
   });
 </script>
-
+<script>
+  function redirectToRegistration() {
+    window.location.href = "registration.html";
+  }
+  </script>
 
 <!-- Content -->
 <script>
@@ -136,6 +141,11 @@
     titleScreen.init(container);
   };
 </script>
+<script>
+  function redirectToRegistration() {
+    window.location.href = "registration.html";
+  }
+  </script>
 <script src="Content/pizzas.js"></script>
 <script src="Content/actions.js"></script>
 <script src="Content/enemies.js"></script>
@@ -175,7 +185,76 @@
 <script src="Battle/BattleAnimations.js"></script>
 
 <script src="init.js"></script>
-<button onclick="window.location.href='new_page.html'">click</button>
 </body>
+  
+  <script>
+    // 检查是否存在记住我的Cookie
+    window.onload = function() {
+      var username = getCookie("username");
+      var password = getCookie("password");
+      var rememberMe = getCookie("rememberMe");
 
+      if (username && password && rememberMe === "true") {
+        document.getElementById("username").value = username;
+        document.getElementById("password").value = password;
+        document.getElementById("rememberMe").checked = true;
+      }
+    };
+
+    // 保存登录信息到Cookie
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      var username = document.getElementById("username").value;
+      var password = document.getElementById("password").value;
+      var rememberMe = document.getElementById("rememberMe").checked;
+
+      if (rememberMe) {
+        setCookie("username", username, 30); // 保存30天
+        setCookie("password", password, 30);
+        setCookie("rememberMe", rememberMe, 30);
+      } else {
+        deleteCookie("username");
+        deleteCookie("password");
+        deleteCookie("rememberMe");
+      }
+
+      // 在这里执行登录验证逻辑或提交表单
+      // ...
+    });
+
+    // 设置Cookie
+    function setCookie(name, value, days) {
+      var expires = "";
+      if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    }
+
+    // 获取Cookie
+    function getCookie(name) {
+      var nameEQ = name + "=";
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        while (cookie.charAt(0) === ' ') {
+          cookie = cookie.substring(1, cookie.length);
+        }
+        if (cookie.indexOf(nameEQ) === 0) {
+          return cookie.substring(nameEQ.length, cookie.length);
+        }
+      }
+      return null;
+    }
+
+    // 删除Cookie
+    function deleteCookie(name) {
+      document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    }
+  </script>
+
+</body>
 </html>
