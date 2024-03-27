@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Question</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            width: 300px;
+        }
+        .form-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="submit"],
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+        }
+        input[type="submit"]:hover,
+        input[type="button"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.querySelector('form');
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent form submission
+
+                var question = document.getElementById('question').value;
+                var answer = document.getElementById('answer').value;
+                var choices = document.getElementById('choices').value;
+
+                fetch('https://us-central1-fyp-a08.cloudfunctions.net/create_question', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question: question, answer: answer, choices: choices })
+                })
+                .then(function(response) {
+                    if (response.ok) {
+                        return response.text(); // 解析回應的文字內容
+                    } else {
+                        throw new Error('Failed to submit the question. Please try again.');
+                    }
+                })
+                .then(function(data) {
+                    alert(data); // 顯示回應的文字內容
+                    form.reset();
+                })
+                .catch(function(error) {
+                    console.log(error);
+                    alert('An error occurred while submitting the question. Please try again later.');
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <form>
+        <div class="form-header">
+            <h1>Teacher Question</h1>
+        </div>
+        <label for="question">Question:</label>
+        <textarea id="question" name="question" rows="5" cols="30" required></textarea>
+
+        <label for="answer">Answer:</label>
+        <input type="text" id="answer" name="answer" required>
+
+        <label for="choices">Choices:</label>
+        <input type="text" id="choices" name="choices" required>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
