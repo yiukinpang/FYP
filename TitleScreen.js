@@ -284,7 +284,7 @@ teacherLogin = (username, password, resolve) => {
   }
 }
 
-setCookie("username", "aaaa", 365); 
+setCookie("username", "john", 365); 
 setCookie("language", "en", 365); 
 
 
@@ -297,4 +297,4 @@ const language = getCookie("language");
 javascript
 Copy
 deleteCookie("username"); 
-deleteCookie("language"); 
+deleteCookie("language");
