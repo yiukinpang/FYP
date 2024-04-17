@@ -6,62 +6,43 @@ class Overworld {
    this.map = null;
  }
 
- gameLoopStepWork(delta) {
-   //Clear off the canvas
-   this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-   //Establish the camera person
-   const cameraPerson = this.map.gameObjects.hero;
-
-   //Update all objects
-   Object.values(this.map.gameObjects).forEach(object => {
-     object.update({
-       delta,
-       arrow: this.directionInput.direction,
-       map: this.map,
-     })
-   })
-
-   //Draw Lower layer
-   this.map.drawLowerImage(this.ctx, cameraPerson);
-
-   //Draw Game Objects
-   Object.values(this.map.gameObjects).sort((a,b) => {
-     return a.y - b.y;
-   }).forEach(object => {
-     object.sprite.draw(this.ctx, cameraPerson);
-   })
-
-   //Draw Upper layer
-   this.map.drawUpperImage(this.ctx, cameraPerson);
- }
-
   startGameLoop() {
-    let previousMs;
-    const step = 1 / 60;
+    const step = () => {
+      //Clear off the canvas
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const stepFn = (timestampMs) => {
-      // Stop here if paused
-      if (this.map.isPaused) {
-        return;
-      }
-      if (previousMs === undefined) {
-        previousMs = timestampMs;
-      }
+      //Establish the camera person
+      const cameraPerson = this.map.gameObjects.hero;
 
-      let delta = (timestampMs - previousMs) / 1000;
-      while (delta >= step) {
-        this.gameLoopStepWork(delta);
-        delta -= step;
-      }
-      previousMs = timestampMs - delta * 1000; // Make sure we don't lose unprocessed (delta) time
+      //Update all objects
+      Object.values(this.map.gameObjects).forEach(object => {
+        object.update({
+          arrow: this.directionInput.direction,
+          map: this.map,
+        })
+      })
+      
 
-      // Business as usual tick
-      requestAnimationFrame(stepFn)
+      //Draw Lower layer
+      this.map.drawLowerImage(this.ctx, cameraPerson);
+
+      //Draw Game Objects
+      Object.values(this.map.gameObjects).sort((a,b) => {
+        return a.y - b.y;
+      }).forEach(object => {
+        object.sprite.draw(this.ctx, cameraPerson);
+      })
+
+      //Draw Upper layer
+      this.map.drawUpperImage(this.ctx, cameraPerson);
+      
+      if (!this.map.isPaused) {
+        requestAnimationFrame(() => {
+          step();   
+        })
+      }
     }
-
-    // First tick
-    requestAnimationFrame(stepFn)
+    step();
  }
 
  bindActionInput() {
@@ -94,9 +75,11 @@ class Overworld {
 
   if (heroInitialState) {
     const {hero} = this.map.gameObjects;
+    this.map.removeWall(hero.x, hero.y);
     hero.x = heroInitialState.x;
     hero.y = heroInitialState.y;
     hero.direction = heroInitialState.direction;
+    this.map.addWall(hero.x, hero.y);
   }
 
   this.progress.mapId = mapConfig.id;
@@ -117,8 +100,7 @@ class Overworld {
   this.titleScreen = new TitleScreen({
     progress: this.progress
   })
-  //const useSaveFile = await this.titleScreen.init(container);
-   const useSaveFile = false;
+  const useSaveFile = await this.titleScreen.init(container);
 
   //Potentially load saved data
   let initialHeroState = null;

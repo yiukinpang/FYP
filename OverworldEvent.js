@@ -6,7 +6,6 @@ class OverworldEvent {
 
   stand(resolve) {
     const who = this.map.gameObjects[ this.event.who ];
-
     who.startBehavior({
       map: this.map
     }, {
@@ -27,7 +26,6 @@ class OverworldEvent {
 
   walk(resolve) {
     const who = this.map.gameObjects[ this.event.who ];
-
     who.startBehavior({
       map: this.map
     }, {
@@ -62,12 +60,6 @@ class OverworldEvent {
   }
 
   changeMap(resolve) {
-
-    //Stop all Person things
-    Object.values(this.map.gameObjects).forEach(obj => {
-      obj.isMounted = false;
-    })
-
     const sceneTransition = new SceneTransition();
     sceneTransition.init(document.querySelector(".game-container"), () => {
       this.map.overworld.startMap( window.OverworldMaps[this.event.map], {

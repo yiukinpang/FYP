@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contact Form</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            width: 300px;
+        }
+        .form-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="submit"],
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+        }
+        input[type="submit"]:hover,
+        input[type="button"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        function toggleFormElements() {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            var loginButton = document.getElementById("loginButton");
+
+            if (username && password) {
+                fetch("https://us-central1-fyp-a08.cloudfunctions.net/teacher_login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        loginButton.style.display = "none";
+                        document.getElementById("password").value = "";
+                        document.getElementById("username").style.display = "none";
+                        document.getElementById("password").style.display = "none";
+                        document.getElementById("usernameLabel").textContent = "Username: " + username;
+                        alert("Successfully logged in!");
+                        showMessageBox();
+                    } else {
+                        alert("Invalid username or password!");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+            } else {
+                alert("Please enter a username and password!");
+            }
+        }
+
+        function showMessageBox() {
+            window.location.href = "MessageBox.html"; // 將此處的 "messagebox.html" 替換為您的消息框頁面的 URL
+        }
+    </script>
+</head>
+<body>
+    <form action="/submit" method="post">
+        <div class="form-header">
+            <h1>Teacher Question</h1>
+        </div>
+        <label for="username" id="usernameLabel">Username:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password" id="passwordLabel">Password:</label>
+        <input type="password" id="password" name="password" required>
+        
+        <input type="button" id="loginButton" value="Login" onclick="toggleFormElements()">
+    </form>
+</body>
+</html>

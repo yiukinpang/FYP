@@ -1,8 +1,7 @@
 class OverworldMap {
   constructor(config) {
     this.overworld = null;
-    this.configObjects = config.configObjects; // Configuration content
-    this.gameObjects = {}; // Starts empty, live object instances in the map get added here
+    this.gameObjects = config.gameObjects;
     this.cutsceneSpaces = config.cutsceneSpaces || {};
     this.walls = config.walls || {};
 
@@ -34,35 +33,18 @@ class OverworldMap {
 
   isSpaceTaken(currentX, currentY, direction) {
     const {x,y} = utils.nextPosition(currentX, currentY, direction);
-    if (this.walls[`${x},${y}`]) {
-      return true;
-    }
-    // Check for objects that match
-    return Object.values(this.gameObjects).find(obj => {
-      if (obj.x === x && obj.y === y) { return true; }
-      if (obj.intentPosition && obj.intentPosition[0] === x && obj.intentPosition[1] === y) {
-        return true;
-      }
-      return false;
-    })
+    return this.walls[`${x},${y}`] || false;
   }
 
   mountObjects() {
-    Object.keys(this.configObjects).forEach(key => {
+    Object.keys(this.gameObjects).forEach(key => {
 
-      let config = this.configObjects[key];
-      config.id = key;
+      let object = this.gameObjects[key];
+      object.id = key;
 
-      let obj;
-      if (config.type === "Person") {
-        obj = new Person(config);
-      }
-      if (config.type === "PizzaStone") {
-        obj = new PizzaStone(config);
-      }
-      this.gameObjects[key] = obj;
-      this.gameObjects[key].id = key;
-      obj.mount(this);
+      //TODO: determine if this object should actually mount
+      object.mount(this);
+
     })
   }
 
@@ -107,26 +89,35 @@ class OverworldMap {
     }
   }
 
+  addWall(x,y) {
+    this.walls[`${x},${y}`] = true;
+  }
+  removeWall(x,y) {
+    delete this.walls[`${x},${y}`]
+  }
+  moveWall(wasX, wasY, direction) {
+    this.removeWall(wasX, wasY);
+    const {x,y} = utils.nextPosition(wasX, wasY, direction);
+    this.addWall(x,y);
+  }
 
 }
 
 window.OverworldMaps = {
   DemoRoom: {
     id: "DemoRoom",
-    lowerSrc: "/images/maps/DemoLower.png",
-    upperSrc: "/images/maps/DemoUpper.png",
-    configObjects: {
-      hero: {
-        type: "Person",
+    lowerSrc: "./images/maps/DemoLower.png",
+    upperSrc: "./images/maps/DemoUpper.png",
+    gameObjects: {
+      hero: new Person({
         isPlayerControlled: true,
         x: utils.withGrid(5),
         y: utils.withGrid(6),
-      },
-      npcA: {
-        type: "Person",
-        x: utils.withGrid(10),
-        y: utils.withGrid(8),
-        src: "/images/characters/people/npc1.png",
+      }),
+      npcA: new Person({
+        x: utils.withGrid(9),
+        y: utils.withGrid(9),
+        src: "./images/characters/people/npc1.png",
         behaviorLoop: [
           { type: "walk", direction: "left", },
           { type: "walk", direction: "down", },
@@ -144,20 +135,19 @@ window.OverworldMaps = {
           {
             events: [
               { type: "textMessage", text: "I'm going to crush you!", faceHero: "npcA" },
-              { type: "battle", enemyId: "beth" },
-              { type: "addStoryFlag", flag: "DEFEATED_BETH"},
-              { type: "textMessage", text: "You crushed me like weak pepper.", faceHero: "npcA" },
-              { type: "textMessage", text: "Go away!"},
+              // { type: "battle", enemyId: "beth" },
+              // { type: "addStoryFlag", flag: "DEFEATED_BETH"},
+              // { type: "textMessage", text: "You crushed me like weak pepper.", faceHero: "npcA" },
+              // { type: "textMessage", text: "Go away!"},
                //{ who: "npcB", type: "walk",  direction: "up" },
             ]
           }
         ]
-      },
-      npcC: {
-        type: "Person",
+      }),
+      npcC: new Person({
         x: utils.withGrid(4),
         y: utils.withGrid(8),
-        src: "/images/characters/people/npc1.png",
+        src: "./images/characters/people/npc1.png",
         behaviorLoop: [
           { type: "stand", direction: "left", time: 500, },
           { type: "stand", direction: "down", time: 500, },
@@ -168,12 +158,11 @@ window.OverworldMaps = {
           { type: "walk", direction: "right",  },
           { type: "walk", direction: "up",  },
         ],
-      },
-      npcB: {
-        type: "Person",
+      }),
+      npcB: new Person({
         x: utils.withGrid(8),
         y: utils.withGrid(5),
-        src: "/images/characters/people/erio.png",
+        src: "./images/characters/people/erio.png",
         talking: [
           {
             events: [
@@ -190,14 +179,13 @@ window.OverworldMaps = {
         //   { type: "walk",  direction: "right" },
         //   { type: "walk",  direction: "down" },
         // ]
-      },
-      pizzaStone: {
-        type: "PizzaStone",
+      }),
+      pizzaStone: new PizzaStone({
         x: utils.withGrid(2),
         y: utils.withGrid(7),
         storyFlag: "USED_PIZZA_STONE",
         pizzas: ["v001", "f001"],
-      },
+      }),
     },
     walls: {
       [utils.asGridCoord(7,6)] : true,
@@ -235,21 +223,19 @@ window.OverworldMaps = {
   },
   Kitchen: {
     id: "Kitchen",
-    lowerSrc: "/images/maps/KitchenLower.png",
-    upperSrc: "/images/maps/KitchenUpper.png",
-    configObjects: {
-      hero: {
-        type: "Person",
+    lowerSrc: "./images/maps/KitchenLower.png",
+    upperSrc: "./images/maps/KitchenUpper.png",
+    gameObjects: {
+      hero: new Person({
         isPlayerControlled: true,
-        x: utils.withGrid(3),
-        y: utils.withGrid(9),
-      },
-      kitchenNpcA: {
-        type: "Person",
+        x: utils.withGrid(10),
+        y: utils.withGrid(5),
+      }),
+      kitchenNpcA: new Person({
         x: utils.withGrid(9),
         y: utils.withGrid(5),
         direction: "up",
-        src: "/images/characters/people/npc8.png",
+        src: "./images/characters/people/npc8.png",
         talking: [
           {
             events: [
@@ -257,32 +243,19 @@ window.OverworldMaps = {
             ]
           }
         ]
-      },
-      kitchenNpcB: {
-        type: "Person",
+      }),
+      kitchenNpcB: new Person({
         x: utils.withGrid(3),
         y: utils.withGrid(6),
-        src: "/images/characters/people/npc3.png",
+        src: "./images/characters/people/npc3.png",
         talking: [
           {
             events: [
               { type: "textMessage", text: "People take their jobs here very seriously.", faceHero: "kitchenNpcB" },
             ]
           }
-        ],
-        behaviorLoop: [
-          { type: "walk", direction: "right", },
-          { type: "walk", direction: "right", },
-          { type: "walk", direction: "down", },
-          { type: "walk", direction: "down", },
-          { type: "walk", direction: "left", },
-          { type: "walk", direction: "left", },
-          { type: "walk", direction: "up", },
-          { type: "walk", direction: "up", },
-          { type: "stand", direction: "up", time: 500 },
-          { type: "stand", direction: "left", time: 500 },
         ]
-      },
+      }),
     },
     cutsceneSpaces: {
       [utils.asGridCoord(5,10)]: [
@@ -370,20 +343,18 @@ window.OverworldMaps = {
   },
   Street: {
     id: "Street",
-    lowerSrc: "/images/maps/StreetLower.png",
-    upperSrc: "/images/maps/StreetUpper.png",
-    configObjects: {
-      hero: {
-        type: "Person",
+    lowerSrc: "./images/maps/StreetLower.png",
+    upperSrc: "./images/maps/StreetUpper.png",
+    gameObjects: {
+      hero: new Person({
         isPlayerControlled: true,
         x: utils.withGrid(30),
         y: utils.withGrid(10),
-      },
-      streetNpcA: {
-        type: "Person",
+      }),
+      streetNpcA: new Person({
         x: utils.withGrid(9),
         y: utils.withGrid(11),
-        src: "/images/characters/people/npc2.png",
+        src: "./images/characters/people/npc2.png",
         behaviorLoop: [
           { type: "stand", direction: "right", time: 1400, },
           { type: "stand", direction: "up", time: 900, },
@@ -395,12 +366,11 @@ window.OverworldMaps = {
             ]
           }
         ]
-      },
-      streetNpcB: {
-        type: "Person",
+      }),
+      streetNpcB: new Person({
         x: utils.withGrid(31),
         y: utils.withGrid(12),
-        src: "/images/characters/people/npc7.png",
+        src: "./images/characters/people/npc7.png",
         behaviorLoop: [
           { type: "stand", direction: "up", time: 400, },
           { type: "stand", direction: "left", time: 800, },
@@ -415,12 +385,11 @@ window.OverworldMaps = {
             ]
           }
         ]
-      },
-      streetNpcC: {
-        type: "Person",
+      }),
+      streetNpcC: new Person({
         x: utils.withGrid(22),
         y: utils.withGrid(10),
-        src: "/images/characters/people/npc8.png",
+        src: "./images/characters/people/npc8.png",
         talking: [
           {
             required: ["streetBattle"],
@@ -436,7 +405,7 @@ window.OverworldMaps = {
             ]
           },
         ]
-      },
+      }),
     },
     walls: function() {
       let walls = {};
@@ -498,20 +467,18 @@ window.OverworldMaps = {
   },
   Shop: {
     id: "Shop",
-    lowerSrc: "/images/maps/PizzaShopLower.png",
-    upperSrc: "/images/maps/PizzaShopUpper.png",
-    configObjects: {
-      hero: {
-        type: "Person",
+    lowerSrc: "./images/maps/PizzaShopLower.png",
+    upperSrc: "./images/maps/PizzaShopUpper.png",
+    gameObjects: {
+      hero: new Person({
         isPlayerControlled: true,
         x: utils.withGrid(3),
         y: utils.withGrid(7),
-      },
-      shopNpcA: {
-        type: "Person",
+      }),
+      shopNpcA: new Person({
         x: utils.withGrid(6),
         y: utils.withGrid(5),
-        src: "/images/characters/people/erio.png",
+        src: "./images/characters/people/erio.png",
         talking: [
           {
             events: [
@@ -519,12 +486,11 @@ window.OverworldMaps = {
             ]
           }
         ]
-      },
-      shopNpcB: {
-        type: "Person",
+      }),
+      shopNpcB: new Person({
         x: utils.withGrid(5),
         y: utils.withGrid(9),
-        src: "/images/characters/people/npc2.png",
+        src: "./images/characters/people/npc2.png",
         behaviorLoop: [
           { type: "stand", direction: "left", time: 400, },
         ],
@@ -535,14 +501,13 @@ window.OverworldMaps = {
             ]
           }
         ]
-      },
-      pizzaStone: {
-        type: "PizzaStone",
+      }),
+      pizzaStone: new PizzaStone({
         x: utils.withGrid(1),
         y: utils.withGrid(4),
         storyFlag: "STONE_SHOP",
         pizzas: ["v002", "f002"],
-      },
+      }),
     },
     cutsceneSpaces: {
       [utils.asGridCoord(5,12)]: [
@@ -623,20 +588,18 @@ window.OverworldMaps = {
   },
   GreenKitchen: {
     id: "GreenKitchen",
-    lowerSrc: "/images/maps/GreenKitchenLower.png",
-    upperSrc: "/images/maps/GreenKitchenUpper.png",
-    configObjects: {
-      hero: {
-        type: "Person",
+    lowerSrc: "./images/maps/GreenKitchenLower.png",
+    upperSrc: "./images/maps/GreenKitchenUpper.png",
+    gameObjects: {
+      hero: new Person({
         isPlayerControlled: true,
         x: utils.withGrid(3),
         y: utils.withGrid(8),
-      },
-      greenKitchenNpcA: {
-        type: "Person",
+      }),
+      greenKitchenNpcA: new Person({
         x: utils.withGrid(8),
         y: utils.withGrid(8),
-        src: "/images/characters/people/npc2.png",
+        src: "./images/characters/people/npc2.png",
         behaviorLoop: [
           { type: "stand", direction: "up", time: 400, },
           { type: "stand", direction: "left", time: 800, },
@@ -650,12 +613,11 @@ window.OverworldMaps = {
             ]
           }
         ]
-      },
-      greenKitchenNpcB: {
-        type: "Person",
+      }),
+      greenKitchenNpcB: new Person({
         x: utils.withGrid(1),
         y: utils.withGrid(8),
-        src: "/images/characters/people/npc3.png",
+        src: "./images/characters/people/npc3.png",
         behaviorLoop: [
           { type: "stand", direction: "up", time: 900, },
           { type: "walk", direction: "down"},
@@ -675,12 +637,11 @@ window.OverworldMaps = {
             ]
           }
         ]
-      },
-      greenKitchenNpcC: {
-        type: "Person",
+      }),
+      greenKitchenNpcC: new Person({
         x: utils.withGrid(3),
         y: utils.withGrid(5),
-        src: "/images/characters/people/secondBoss.png",
+        src: "./images/characters/people/secondBoss.png",
         talking: [
           {
             required: ["chefRootie"],
@@ -694,7 +655,7 @@ window.OverworldMaps = {
             ]
           }
         ]
-      },
+      }),
     },
     cutsceneSpaces: {
       [utils.asGridCoord(5,12)]: [
@@ -761,20 +722,18 @@ window.OverworldMaps = {
   },
   StreetNorth: {
     id: "StreetNorth",
-    lowerSrc: "/images/maps/StreetNorthLower.png",
-    upperSrc: "/images/maps/StreetNorthUpper.png",
-    configObjects: {
-      hero: {
-        type: "Person",
+    lowerSrc: "./images/maps/StreetNorthLower.png",
+    upperSrc: "./images/maps/StreetNorthUpper.png",
+    gameObjects: {
+      hero: new Person({
         isPlayerControlled: true,
         x: utils.withGrid(3),
         y: utils.withGrid(8),
-      },
-      streetNorthNpcA: {
-        type: "Person",
+      }),
+      streetNorthNpcA: new Person({
         x: utils.withGrid(9),
         y: utils.withGrid(6),
-        src: "/images/characters/people/npc1.png",
+        src: "./images/characters/people/npc1.png",
         behaviorLoop: [
           { type: "walk", direction: "left", },
           { type: "walk", direction: "down", },
@@ -790,12 +749,11 @@ window.OverworldMaps = {
             ]
           }
         ]
-      },
-      streetNorthNpcB: {
-        type: "Person",
+      }),
+      streetNorthNpcB: new Person({
         x: utils.withGrid(4),
         y: utils.withGrid(12),
-        src: "/images/characters/people/npc3.png",
+        src: "./images/characters/people/npc3.png",
         behaviorLoop: [
           { type: "stand", direction: "up", time: 400, },
           { type: "stand", direction: "left", time: 800, },
@@ -810,12 +768,11 @@ window.OverworldMaps = {
             ]
           }
         ]
-      },
-      streetNorthNpcC: {
-        type: "Person",
+      }),
+      streetNorthNpcC: new Person({
         x: utils.withGrid(12),
         y: utils.withGrid(9),
-        src: "/images/characters/people/npc8.png",
+        src: "./images/characters/people/npc8.png",
         talking: [
           {
             required: ["streetNorthBattle"],
@@ -831,14 +788,14 @@ window.OverworldMaps = {
             ]
           },
         ]
-      },
-      pizzaStone: {
-        type: "PizzaStone",
+      }),
+      pizzaStone: new PizzaStone({
         x: utils.withGrid(2),
         y: utils.withGrid(9),
         storyFlag: "STONE_STREET_NORTH",
         pizzas: ["v001", "f001"],
-      },
+      }),
+
     },
     walls: {
       [utils.asGridCoord(2,7)]: true,
@@ -926,20 +883,18 @@ window.OverworldMaps = {
   },
   DiningRoom: {
     id: "DiningRoom",
-    lowerSrc: "/images/maps/DiningRoomLower.png",
-    upperSrc: "/images/maps/DiningRoomUpper.png",
-    configObjects: {
-      hero: {
-        type: "Person",
+    lowerSrc: "./images/maps/DiningRoomLower.png",
+    upperSrc: "./images/maps/DiningRoomUpper.png",
+    gameObjects: {
+      hero: new Person({
         isPlayerControlled: true,
         x: utils.withGrid(5),
         y: utils.withGrid(8),
-      },
-      diningRoomNpcA: {
-        type: "Person",
+      }),
+      diningRoomNpcA: new Person({
         x: utils.withGrid(12),
         y: utils.withGrid(8),
-        src: "/images/characters/people/npc8.png",
+        src: "./images/characters/people/npc8.png",
         talking: [
           {
             required: ["diningRoomBattle"],
@@ -955,12 +910,11 @@ window.OverworldMaps = {
             ]
           },
         ]
-      },
-      diningRoomNpcB: {
-        type: "Person",
+      }),
+      diningRoomNpcB: new Person({
         x: utils.withGrid(9),
         y: utils.withGrid(5),
-        src: "/images/characters/people/npc4.png",
+        src: "./images/characters/people/npc4.png",
         talking: [
           {
             events: [
@@ -968,12 +922,11 @@ window.OverworldMaps = {
             ]
           },
         ]
-      },
-      diningRoomNpcC: {
-        type: "Person",
+      }),
+      diningRoomNpcC: new Person({
         x: utils.withGrid(2),
         y: utils.withGrid(8),
-        src: "/images/characters/people/npc7.png",
+        src: "./images/characters/people/npc7.png",
         behaviorLoop: [
           { type: "stand", direction: "right", time: 800, },
           { type: "stand", direction: "down", time: 700, },
@@ -986,12 +939,11 @@ window.OverworldMaps = {
             ]
           },
         ]
-      },
-      diningRoomNpcD: {
-        type: "Person",
+      }),
+      diningRoomNpcD: new Person({
         x: utils.withGrid(8),
         y: utils.withGrid(9),
-        src: "/images/characters/people/npc1.png",
+        src: "./images/characters/people/npc1.png",
         behaviorLoop: [
           { type: "stand", direction: "right", time: 1200, },
           { type: "stand", direction: "down", time: 900, },
@@ -1007,7 +959,7 @@ window.OverworldMaps = {
             ]
           },
         ]
-      },
+      }),
     },
     cutsceneSpaces: {
       [utils.asGridCoord(7,3)]: [
