@@ -33,7 +33,7 @@ class PauseMenu {
           label: "Close",
           description: "Close the pause menu",
           handler: () => {
-            this.close();
+            window.location.href = "index.html";
           }
         }
       ]
