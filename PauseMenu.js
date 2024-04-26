@@ -30,10 +30,17 @@ class PauseMenu {
           }
         },
         {
-          label: "Close",
-          description: "Close the pause menu",
+          label: "Close game",
+          description: "Close the game",
           handler: () => {
             window.location.href = "index.html";
+          }
+        },
+        {
+          label: "Close pause menu",
+          description: "Close the pause menu",
+          handler: () => {
+            this.close();
           }
         }
       ]
