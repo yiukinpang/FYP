@@ -25,14 +25,6 @@ class TitleScreen {
     };
 
     return [
-      {
-        label: "New Game",
-        description: "Start a new pizza adventure.",
-        handler: () => {
-          this.close();
-          resolve();
-        }
-      },
       safeFile
         ? {
           label: "Continue Game",
